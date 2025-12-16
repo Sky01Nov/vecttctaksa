@@ -1,0 +1,62 @@
+services:
+  # 1. Database Service (พระเอกของเรา)
+  db:
+    image: mysql:8.0 # หรือ mariadb:latest ตามโจทย์ระบุ
+    container_name: skill_db_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: skills_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      TZ: Asia/Bangkok
+    ports:
+      # 🔥 สำคัญมาก: เปิด Port 3306 ออกมาเพื่อให้
+      # Backend (ที่รันบนเครื่อง) และ HeidiSQL/DBeaver เข้าถึงได้
+      - "3306:3306" 
+    volumes:
+      - db_data:/var/lib/mysql
+      # ถ้ามีไฟล์ schema.sql ให้ map เข้าไปรันออโต้เลย (ประหยัดเวลา import)
+      # - ./schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
+    networks:
+      - skill_net
+
+  # -------------------------------------------------------
+  # 2. phpMyAdmin (ตัวช่วยชีวิต)
+  # -------------------------------------------------------
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: skill_pma_container
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    ports:
+      - "8080:80" # เข้าผ่าน http://localhost:8080
+    depends_on:
+      - db
+    networks:
+      - skill_net
+
+  # -------------------------------------------------------
+  # 3. Backend & Frontend (เตรียมไว้สำหรับตอนส่งงาน)
+  # * ตอนพัฒนาเราจะ comment ปิดไว้ก่อน เพื่อรันบนเครื่อง (เร็วสุด) *
+  # -------------------------------------------------------
+  # api:
+  #   build: ./backend
+  #   ports: ["7000:7000"]
+  #   depends_on: [db]
+  #   networks: [skill_net]
+
+  # web:
+  #   build: ./frontend
+  #   ports: ["3000:3000"]
+  #   depends_on: [api]
+  #   networks: [skill_net]
+
+volumes:
+  db_data:
+
+networks:
+  skill_net:
+    driver: bridge

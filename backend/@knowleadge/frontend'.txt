@@ -1,0 +1,3 @@
+npx nuxi@latest init frontend  # (หรือตาม template ที่เครื่องมี)
+cd frontend
+npm install vuetify vite-plugin-vuetify @mdi/font axios pinia @pinia/nuxt tailwindcss
