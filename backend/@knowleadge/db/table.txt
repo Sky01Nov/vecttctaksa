@@ -1,0 +1,126 @@
+-- ตาราง Organization Groups (ฝ่ายงาน)
+CREATE TABLE orgmst (
+  orgseq INT AUTO_INCREMENT PRIMARY KEY,
+  orgcod VARCHAR(20) NOT NULL UNIQUE,
+  orgnam VARCHAR(255) NOT NULL        -- name_th
+);
+
+-- ตาราง Vocational Categories (ประเภทวิชา)
+CREATE TABLE catmst (
+  catseq INT AUTO_INCREMENT PRIMARY KEY,
+  catcod VARCHAR(10) NOT NULL UNIQUE,
+  catnam VARCHAR(255) NOT NULL        -- name_th
+);
+
+
+------------------------------------------------------------------------------
+--ตาราง Users
+
+CREATE TABLE usrmst (
+  usrseq BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, -- id
+  usreml VARCHAR(255) NOT NULL UNIQUE,               -- email
+  usrpwd VARCHAR(255) NOT NULL,                      -- password_hash
+  usrnam VARCHAR(255) NOT NULL,                      -- name_th
+  usrrol ENUM('admin','evaluator','evaluatee') NOT NULL, -- role
+  depseq INT NULL,                                   -- department_id (Link to depmst)
+  usrdtm TIMESTAMP DEFAULT CURRENT_TIMESTAMP,        -- created_at
+  usrupd TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- updated_at (แถมให้)
+);
+
+----------------------------------------------------------------------------------
+
+-- เก็บข้อมูลแผนกวิชา
+
+CREATE TABLE depmst (
+  depseq INT AUTO_INCREMENT PRIMARY KEY,
+  depcod VARCHAR(20) NOT NULL UNIQUE, -- code
+  depnam VARCHAR(255) NOT NULL,       -- name_th
+  catseq INT NOT NULL,                -- category_id (ถ้ามีตาราง catmst)
+  orgseq INT NOT NULL                 -- org_group_id (ถ้ามีตาราง orgmst)
+);
+
+--------------------------------------------------------------------------
+-- เก็บหัวข้อใหญ่ของการประเมิน (เช่น ด้านการสอน)
+
+CREATE TABLE topmst (
+  topseq BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  topcod VARCHAR(30) NOT NULL UNIQUE,  -- code
+  toptit VARCHAR(255) NOT NULL,        -- title_th
+  topdes TEXT NULL,                    -- description
+  topwgt DECIMAL(5,2) DEFAULT 0.00,    -- weight
+  topact TINYINT(1) DEFAULT 1,         -- active
+  topdtm TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+---------------------------------------------------------------------------
+--ตาราง Indicators
+
+CREATE TABLE indmst (
+  indseq BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  topseq BIGINT UNSIGNED NOT NULL,       -- topic_id (Link to topmst)
+  indcod VARCHAR(40) NOT NULL UNIQUE,    -- code (รหัสตัวชี้วัด)
+  indnam VARCHAR(255) NOT NULL,          -- name_th
+  indwgt DECIMAL(5,2) DEFAULT 1.00,      -- weight
+  indmax TINYINT DEFAULT 4,              -- max_score
+  indact TINYINT(1) DEFAULT 1,           -- active
+  
+  -- Foreign Key
+  CONSTRAINT fk_ind_top FOREIGN KEY (topseq) REFERENCES topmst(topseq)
+);
+
+------------------------------------------------------------------------
+-- เก็บผลการประเมิน
+
+CREATE TABLE evltrn (
+  evlseq BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  perseq BIGINT UNSIGNED NOT NULL,       -- period_id (รอบการประเมิน)
+  evrseq BIGINT UNSIGNED NOT NULL,       -- evaluator_id (กรรมการ)
+  eveseq BIGINT UNSIGNED NOT NULL,       -- evaluatee_id (ผู้ถูกประเมิน)
+  indseq BIGINT UNSIGNED NOT NULL,       -- indicator_id (ข้อที่ประเมิน)
+  evlscr DECIMAL(5,2) NULL,              -- score
+  evlnote TEXT NULL,                     -- notes
+  evlsta ENUM('draft','submitted') DEFAULT 'draft', -- status
+  evldtm TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  -- Unique Key: ห้ามประเมินซ้ำคนเดิม รอบเดิม ข้อเดิม
+  UNIQUE KEY unq_evl (perseq, evrseq, eveseq, indseq)
+);
+
+----------------------------------------------------------------------
+
+-- เก็บรอบการประเมิน (เช่น ปีการศึกษา 2568)
+CREATE TABLE permst (
+  perseq BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  percod VARCHAR(30) NOT NULL UNIQUE,  -- code (Y2568)
+  pernam VARCHAR(255) NOT NULL,        -- name_th
+  peryear INT NOT NULL,                -- buddhist_year
+  persdt DATE NOT NULL,                -- start_date
+  peredt DATE NOT NULL,                -- end_date
+  peract TINYINT(1) DEFAULT 1,         -- is_active
+  perdtm TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+-------------------------------------------------------------------	
+
+-- ตารางจับคู่ "ใครประเมินใคร"
+
+CREATE TABLE asgtrn (
+  asgseq BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  perseq BIGINT UNSIGNED NOT NULL,     -- period_id
+  evrseq BIGINT UNSIGNED NOT NULL,     -- evaluator_id (Link to usrmst)
+  eveseq BIGINT UNSIGNED NOT NULL,     -- evaluatee_id (Link to usrmst)
+  depseq INT NULL,                     -- dept_id
+  asgdtm TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  -- Foreign Keys
+  CONSTRAINT fk_asg_per FOREIGN KEY (perseq) REFERENCES permst(perseq),
+  CONSTRAINT fk_asg_evr FOREIGN KEY (evrseq) REFERENCES usrmst(usrseq),
+  CONSTRAINT fk_asg_eve FOREIGN KEY (eveseq) REFERENCES usrmst(usrseq),
+  
+  -- ห้ามจับคู่ซ้ำในรอบเดิม
+  UNIQUE KEY unq_asg (perseq, evrseq, eveseq)
+);
+
+---------------------------------------------------------------------

@@ -1,0 +1,6 @@
+const { usreml, usrpwd } = req.body; 
+await db('usrmst').insert({ 
+   usreml, 
+   usrpwd: hash, // ต้อง map ตัวแปรให้ถูก
+   usrnam 
+});
