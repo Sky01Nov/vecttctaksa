@@ -1,5 +1,4 @@
 services:
-  # 1. Database Service (พระเอกของเรา)
   db:
     image: mysql:8.0 # หรือ mariadb:latest ตามโจทย์ระบุ
     container_name: skill_db_container
@@ -11,13 +10,13 @@ services:
       MYSQL_PASSWORD: password
       TZ: Asia/Bangkok
     ports:
-      # 🔥 สำคัญมาก: เปิด Port 3306 ออกมาเพื่อให้
+      # สำคัญมาก: เปิด Port 3306 ออกมาเพื่อให้
       # Backend (ที่รันบนเครื่อง) และ HeidiSQL/DBeaver เข้าถึงได้
       - "3306:3306" 
     volumes:
       - db_data:/var/lib/mysql
       # ถ้ามีไฟล์ schema.sql ให้ map เข้าไปรันออโต้เลย (ประหยัดเวลา import)
-      # - ./schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
+      - ./schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
     networks:
       - skill_net
 
