@@ -1,0 +1,5 @@
+mkdir backend && cd backend
+npm init -y
+npm install express cors dotenv knex mysql2 jsonwebtoken bcrypt morgan multer swagger-ui-express swagger-jsdoc
+
+npm install -D nodemon

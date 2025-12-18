@@ -1,4 +1,6 @@
 -- ตาราง Organization Groups (ฝ่ายงาน)
+
+
 CREATE TABLE orgmst (
   orgseq INT AUTO_INCREMENT PRIMARY KEY,
   orgcod VARCHAR(20) NOT NULL UNIQUE,
@@ -19,10 +21,10 @@ CREATE TABLE catmst (
 CREATE TABLE usrmst (
   usrseq BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, -- id
   usreml VARCHAR(255) NOT NULL UNIQUE,               -- email
-  usrpwd VARCHAR(255) NOT NULL,                      -- password_hash
+  VARCHAR(255) NOT NULL,                      -- password_hash
   usrnam VARCHAR(255) NOT NULL,                      -- name_th
   usrrol ENUM('admin','evaluator','evaluatee') NOT NULL, -- role
-  depseq INT NULL,                                   -- department_id (Link to depmst)
+  usrdepseq INT NULL,                                   -- department_id (Link to depmst)
   usrdtm TIMESTAMP DEFAULT CURRENT_TIMESTAMP,        -- created_at
   usrupd TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- updated_at (แถมให้)
 );
