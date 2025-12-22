@@ -1,28 +1,23 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const knex = require('knex');
-const knexConfig = require('./knexfile');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
 require('dotenv').config();
 
-// Initialize App
+const db = require('./src/db'); 
+
 const app = express();
-const db = knex(knexConfig.development); // เชื่อมต่อ DB vecskill
 
-// Middlewares
-app.use(cors());          // อนุญาตให้ Frontend เรียก API ได้
-app.use(express.json());  // อ่าน JSON Body ได้
-app.use(morgan('dev'));   // แสดง Log การเรียก API
+app.use(cors());
+app.use(express.json());
+app.use(morgan('dev'));
 
-// Inject DB to Request (เพื่อให้ Route เรียกใช้ db ได้สะดวก)
 app.use((req, res, next) => {
     req.db = db;
     next();
 });
 
-// Swagger Configuration (Document)
 const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
@@ -47,7 +42,7 @@ const swaggerOptions = {
         },
         security: [{ bearerAuth: [] }],
     },
-    apis: ['./routes/*.js'], // บอก Swagger ว่า Route อยู่ที่ไหน
+    apis: ['./src/routes/*.js'],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -61,7 +56,7 @@ app.get('/health', async (req, res) => {
             status: 'ok', 
             database: 'connected', 
             db_name: process.env.DB_NAME,
-            test: result[0][0].result 
+            test_result: result[0][0].result 
         });
     } catch (error) {
         console.error(error);
@@ -69,13 +64,17 @@ app.get('/health', async (req, res) => {
     }
 });
 
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-// const masterRoutes = require('./routes/masters');
+// Import Routes
+// const authRoutes = require('./src/routes/auth');
+// const userRoutes = require('./src/routes/user');
+// const masterRoutes = require('./src/routes/main');
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-// app.use('/api/masters', masterRoutes);
+// Use Routes
+// app.use('/api/auth', authRoutes);
+// app.use('/api/user', userRoutes);
+// app.use('/api/main', console.log('Hello, world'));
+
+
 
 // Start Server
 const PORT = process.env.PORT || 7000;
@@ -84,4 +83,4 @@ app.listen(PORT, () => {
     console.log(`Swagger Docs available at http://localhost:${PORT}/api-docs`);
 });
 
-module.exports = app; // เผื่อใช้ทำ Test
+module.exports = app;
