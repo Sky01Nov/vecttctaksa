@@ -24,14 +24,28 @@ router.post('/login', async (req, res) => {
         //     return res.status(401).json({ success: false, message: 'รหัสผ่านผิด' });
         // }
         
-        if(email == 'admin' && password == '123456'){
-            var token = jwt.sign(
+        if(email === 'admin' && password == '123456'){
+            let token = jwt.sign(
                 {   seq: 1,
                     role: 'admin',
                     name: email },
                 process.env.JWT_SECRET || 'secret_key_for_competition',
                 { expiresIn: '1d' }
             );
+
+            res.json({
+                success: true,
+                message: 'เข้าสู่ระบบสำเร็จ',
+                token,
+                user: {   seq: 1,
+                    role: 'admin',
+                    name: email },
+            });
+        } else {
+            res.status(401).json({
+                success: false,
+                message: 'รหัสผ่านผิด',
+            });
         }
 
         // const token = jwt.sign(
@@ -46,17 +60,6 @@ router.post('/login', async (req, res) => {
         //     token,
         //     user: { id: user.usrseq, name: user.usrnam, role: user.usrrol }
         // });
-
-        res.json({
-            success: true,
-            message: 'เข้าสู่ระบบสำเร็จ',
-            token,
-            user: {   seq: 1,
-                    role: 'admin',
-                    name: email },
-        });
-
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Server Error' });

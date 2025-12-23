@@ -17,7 +17,7 @@ app.use((req, res, next) => {
 });
 
 
-const auth = require('./src/routes/auth'); // ถูกต้อง ต้องมี require
+const auth = require('./src/routes/auth');
 app.use('/api/auth', auth);
 
 
@@ -40,7 +40,6 @@ app.use((error, req, res, next) => {
     });
 });
 
-// จุดสร้าง server
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
