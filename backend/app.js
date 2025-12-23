@@ -17,6 +17,10 @@ app.use((req, res, next) => {
 });
 
 
+const auth = require('./src/routes/auth'); // ถูกต้อง ต้องมี require
+app.use('/api/auth', auth);
+
+
 app.use((req, res, next) => {
     const error = new Error('Not Found');
     error.status = 404;
