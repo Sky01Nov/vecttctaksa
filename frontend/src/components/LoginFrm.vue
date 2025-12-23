@@ -31,7 +31,9 @@ export default defineComponent({
            axios.post('/auth/login', body).then(result => {
                     console.log('ข้อมูลที่ได้:', result.data);
                     console.log('สถานะ:', result.status);
+
                     this.toast.trigger(result.data.message, result.status);
+                    
                     if (result.status === 200) {
                         const token = result.data.token;
                         
@@ -43,6 +45,7 @@ export default defineComponent({
                 .catch(error => {
                     if (error.response) {
                         // this.toast.trigger(error.data.message, error.status);
+                        this.toast.trigger(error.response.data.message, error.response.status);
                         console.log('Error Data:', error.response.data);
                         console.log('Error Status:', error.response.status);
                     }
