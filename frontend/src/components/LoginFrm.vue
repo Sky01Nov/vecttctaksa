@@ -51,7 +51,10 @@ export default defineComponent({
                     }
                 })
                 .finally(() => {
-                    // ปิดตัวโหลด (Loading spinner)
+                    this.LgnFrm.usrnam = '';
+                    this.LgnFrm.usrpwd = '';
+
+                    this.$router.push('/dashboard');
                 });
             }
     },

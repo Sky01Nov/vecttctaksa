@@ -1,7 +1,10 @@
 <script  lang="ts" setup>
   import axios from 'axios';
-  import LoginFrm from './components/LoginFrm.vue';
   import toaster from './components/toaster.vue';
+  import Sidebar from './components/Sidebar.vue'; // import เข้ามา
+  import { useRoute } from 'vue-router';
+  
+  const route = useRoute();
   // import {defineComponent} from 'vue';
   let token = localStorage.getItem('token');
   
@@ -16,7 +19,14 @@
 
 <template>
   <toaster></toaster>
-  <LoginFrm></LoginFrm>
+  <!-- <LoginFrm></LoginFrm> -->
+   <div class="flex">
+    <Sidebar v-if="route.path !== '/login'" />
+
+    <div :class="route.path !== '/login' ? 'ml-64 w-full p-8 bg-gray-50 min-h-screen' : 'w-full'">
+      <router-view />
+    </div>
+  </div>
 </template>
 
 <style scoped>
